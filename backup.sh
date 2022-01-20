@@ -28,13 +28,24 @@ if [[ "$rc" == 0 ]]; then
   >&2 echo "Backup successful."
   ls -hl "${OUTPUT_FOLDER}"
 
-  rclone copy "${OUTPUT_FILE}" "${RCLONE_TARGET}"
+  set +e
+  rclone copy "${OUTPUT_FILE}" "${RCLONE_TARGET}" 2>&1 | tee /tmp/error_output
+  rc=$?
+  set -e
 
-  if [[ -n "${HEALTHCHECKS_URL:-}" ]]; then
-    curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_URL}"
+  if [[ "$rc" == 0 ]]; then
+    >&2 echo "Upload successful."
+
+    if [[ -n "${HEALTHCHECKS_URL:-}" ]]; then
+      curl -fsS -m 10 --retry 5 "${HEALTHCHECKS_URL}"
+    fi
+  else
+    >&2 echo "Upload failed!"
+    curl -fsS -m 10 --retry 5 -d @/tmp/error_output "${HEALTHCHECKS_URL}/fail"
+    exit $rc
   fi
 else
-  echo "Backup failed with error!"
+  >&2 echo "Backup failed!"
   curl -fsS -m 10 --retry 5 -d @/tmp/error_output "${HEALTHCHECKS_URL}/fail"
   exit $rc
 fi
