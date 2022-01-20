@@ -1,5 +1,8 @@
 # Docker Postgres backup
 
+[![Build Status](https://ci.strahlungsfrei.de/api/badges/djmaze/docker-postgres-backup/status.svg)](https://ci.strahlungsfrei.de/djmaze/docker-postgres-backup)
+[![Docker Stars](https://img.shields.io/docker/stars/decentralize/postgres-backup.svg)](https://hub.docker.com/r/decentralize/postgres-backup/) [![Docker Pulls](https://img.shields.io/docker/pulls/decentralize/postgres-backup.svg)](https://hub.docker.com/r/decentralize/postgres-backup/)
+
 This Docker image allows making a full SQL backup of a postgres database and store it GPG-encrypted on a remote location supported by rclone.
 
 The backup is encrypted asymmetrically, so you need to supply a public key. The holder of the private key will be able to decrypt the backup.
