@@ -41,11 +41,15 @@ if [[ "$rc" == 0 ]]; then
     fi
   else
     >&2 echo "Upload failed!"
-    curl -fsS -m 10 --retry 5 -d @/tmp/error_output "${HEALTHCHECKS_URL}/fail"
+    if [[ -n "${HEALTHCHECKS_URL:-}" ]]; then
+      curl -fsS -m 10 --retry 5 -d @/tmp/error_output "${HEALTHCHECKS_URL}/fail"
+  fi
     exit $rc
   fi
 else
   >&2 echo "Backup failed!"
-  curl -fsS -m 10 --retry 5 -d @/tmp/error_output "${HEALTHCHECKS_URL}/fail"
+  if [[ -n "${HEALTHCHECKS_URL:-}" ]]; then
+    curl -fsS -m 10 --retry 5 -d @/tmp/error_output "${HEALTHCHECKS_URL}/fail"
+  fi
   exit $rc
 fi
