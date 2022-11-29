@@ -3,6 +3,7 @@ version: "3.7"
 services:
   app:
     build: .
+    image: decentralize/postgres-backup:0.1.2
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db
       - RCLONE_CONFIG_MYS3_TYPE=s3
