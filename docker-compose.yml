@@ -7,14 +7,17 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db
       - RCLONE_CONFIG_MYS3_TYPE=s3
+      - RCLONE_S3_PROVIDER=Minio
       - RCLONE_CONFIG_MYS3_ACCESS_KEY_ID=minioadmin
       - RCLONE_CONFIG_MYS3_SECRET_ACCESS_KEY=minioadmin
       - RCLONE_CONFIG_MYS3_ENDPOINT=http://minio:9000
       - RCLONE_TARGET=mys3:backup
+
+      # secret key: AGE-SECRET-KEY-1P6TMQJ780M53NQHJ56Q47EXF504NWNGMKF6F5ZR8WKCDY5ZGQ0JSUN4SQU
+      - RECIPIENT=age17mcyt34uwq42j2s708uur4dqkt4dv3tr5jp2gmr9zpqnvc2gs3csqq0cud
+
       # optional
       # - HEALTHCHECKS_URL=https://healthchecks.example.com/ping/8382dda-5d12-475c-bd16-17a0a975e11d
-    volumes:
-      - ./example/public_key:/run/secrets/public_key:ro
     depends_on:
       - db
       - minio

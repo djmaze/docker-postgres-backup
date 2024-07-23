@@ -1,26 +1,28 @@
 #!/usr/bin/env bash
 set -eou pipefail
 
-PUBLIC_KEY_FILE=/run/secrets/public_key
 OUTPUT_FOLDER=/tmp/backup
-OUTPUT_FILE="${OUTPUT_FOLDER}/backup_$(date +%u).sql.gpg"
+OUTPUT_FILE="${OUTPUT_FOLDER}/backup_$(date +%u).sql.gz.age"
+
+if [[ -z "${RECIPIENT:-}" ]]; then
+  >&2 echo "Error - need RECIPIENT"
+  exit 1
+fi
 
 if [[ -z "${RCLONE_TARGET:-}" ]]; then
   >&2 echo "Error – need RCLONE_TARGET"
   exit 1
 fi
 
-public_key="$(gpg --status-fd=1 --import "${PUBLIC_KEY_FILE}" | head -n1 | awk '{print $3}')"
-echo -e "5\ny\n" | gpg --no-tty --command-fd 0 --expert --edit-key "${public_key}" trust
-
->&2 echo Imported public key: "${public_key}"
-
 >&2 echo Starting backup..
 
 mkdir "$OUTPUT_FOLDER"
-
 set +e
-(pg_dump "$DATABASE_URL" | gpg --no-tty --encrypt -r "${public_key}" --output "$OUTPUT_FILE") 2>&1 | tee /tmp/error_output
+(pg_dump "$DATABASE_URL" \
+  | gzip - \
+  | age --encrypt --recipient "${RECIPIENT}" --output "${OUTPUT_FILE}" \
+  ) \
+  2>&1 | tee /tmp/error_output
 rc=$?
 set -e
 
@@ -29,7 +31,7 @@ if [[ "$rc" == 0 ]]; then
   ls -hl "${OUTPUT_FOLDER}"
 
   set +e
-  rclone copy "${OUTPUT_FILE}" "${RCLONE_TARGET}" 2>&1 | tee /tmp/error_output
+  rclone copy "${OUTPUT_FOLDER}" "${RCLONE_TARGET}" 2>&1 | tee /tmp/error_output
   rc=$?
   set -e
 
