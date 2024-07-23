@@ -1,4 +1,4 @@
-ARG POSTGRES_VERSION=15
+ARG POSTGRES_VERSION=16
 FROM postgres:${POSTGRES_VERSION}-alpine
 
 RUN apk add --no-cache bash curl gpg gpg-agent rclone \
